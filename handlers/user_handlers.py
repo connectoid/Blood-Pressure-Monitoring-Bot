@@ -1,7 +1,8 @@
 from time import sleep
 
 from aiogram import Bot, F, Router
-from aiogram.filters import Command, CommandStart, Text, StateFilter
+from aiogram.filters.command import Command, CommandStart
+from aiogram.filters.state import StateFilter
 from aiogram.types import CallbackQuery, Message, Location
 
 from aiogram.filters.state import State, StatesGroup
@@ -72,7 +73,7 @@ async def process_location(message: Message, location: Location) -> None:
             reply_markup=get_main_menu())
         
 
-@router.message(Text(text='❤️ Добавить'), StateFilter(default_state))
+@router.message(F.text == '❤️ Добавить', StateFilter(default_state))
 async def process_blood_command(message: Message, state: FSMContext):
     await message.answer(
         text=f'Введите показатели АД и пульса в формате 120/70/75', 
@@ -81,7 +82,7 @@ async def process_blood_command(message: Message, state: FSMContext):
     await state.set_state(FSMBloodState.blood_string)
 
 
-@router.message(Text,  StateFilter(FSMBloodState.blood_string))
+@router.message(F.text,  StateFilter(FSMBloodState.blood_string))
 async def process_text_command(message: Message, state: FSMContext):
     await state.update_data(blood_string=message.text)
     tg_id = message.from_user.id
@@ -112,7 +113,7 @@ async def process_text_command(message: Message, state: FSMContext):
             )
 
 
-@router.message(Text(text='📈 График'), StateFilter(default_state))
+@router.message(F.text == '📈 График', StateFilter(default_state))
 async def process_graphic_command(callback: CallbackQuery):
     await callback.answer(text='Выберите период:',
                           reply_markup=get_graphic_menu()
@@ -132,7 +133,7 @@ async def process_button_1_click(callback: CallbackQuery):
 
 
 
-@router.message(Text(text='🌤 Погода'), StateFilter(default_state))
+@router.message(F.text == '🌤 Погода', StateFilter(default_state))
 async def process_blood_command(message: Message, state: FSMContext):
     tg_id = message.from_user.id
     user_id, lat, lon, timezone = get_user_data(tg_id)
@@ -145,7 +146,7 @@ async def process_blood_command(message: Message, state: FSMContext):
     )
 
 
-@router.message(Text(text='🧲 Магнитные бури'), StateFilter(default_state))
+@router.message(F.text == '🧲 Магнитные бури', StateFilter(default_state))
 async def process_blood_command(message: Message, state: FSMContext):
     tg_id = message.from_user.id
     user_id, lat, lon, timezone = get_user_data(tg_id)

@@ -25,7 +25,7 @@ async def main():
     
     config: Config = load_config()
 
-    bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
+    bot = Bot(token=config.tg_bot.token)
     dp = Dispatcher(storage=storage)
 
     print('Bot strted')
