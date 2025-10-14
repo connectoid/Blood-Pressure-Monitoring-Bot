@@ -108,7 +108,9 @@ def get_kp_data(timezone):
 
     response = requests.get(url)
     if response.status_code == 200:
-        hours = ["h00", "h03", "h06", "h09", "h12", "h15", "h18", "h21"]
+        hours_1 = ['h0'+str(h) for h in range(0, 10)]
+        hours_2 = ['h'+str(h) for h in range(10, 25)]
+        hours = hours_1 + hours_2
 
         json_data = response.json()
         max_kp = json_data['data'][0]['max_kp']
@@ -116,8 +118,7 @@ def get_kp_data(timezone):
         time_zone = json_data['tzone']
         all_kp_data = json_data['data'][0]
 
-        # Фильтруем словарь
-        kp_by_hours = {key: all_kp_data[key] for key in hours if key in all_kp_data}
+        kp_by_hours = {key: all_kp_data[key] for key in hours if (key in all_kp_data) and (all_kp_data[key] != 'null')}
 
         # print(kp_by_hours)
         kp_data = {}
@@ -168,8 +169,8 @@ def get_pretty_kp_data(kp_data):
 Часовой пояс: {kp_data['time_zone']}
 Текущая дата по UTC: {kp_data['date']}
 Макс. индекс KP за сутки: {kp_data['max_kp']}
-Почасовой индек КП: {kp_by_hours_string}
-Последний индек КП: {kp_data['last_kp']}
+Почасовой индекс КП: {kp_by_hours_string}
+Последний индекс КП: {kp_data['last_kp']}
     """
     return pretty_kp_string
 
