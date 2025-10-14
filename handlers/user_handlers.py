@@ -122,12 +122,13 @@ async def process_graphic_command(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'week_button_click')
 async def process_button_1_click(callback: CallbackQuery):
+    days = 7
     tg_id = callback.from_user.id
     user_id = get_user_id(tg_id)
     bloods_data = get_bloods(user_id)
-    graphic = create_graphic(bloods_data)
+    message_text = create_graphic(bloods_data, days)
     await callback.message.answer(
-            text='График за неделю', 
+            text=message_text, 
             reply_markup=get_main_menu()
         )
 

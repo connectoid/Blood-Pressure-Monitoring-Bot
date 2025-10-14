@@ -13,15 +13,15 @@ code_timezone_file = 'code_timezone.json'
 
 
 wind_directions = {
-    0: 'Северный ветер',
-    45: 'Северо-восточный ветер',
-    90: 'Восточный ветер',
-    135: 'Юго-восточный ветер',
-    180: 'Южный ветер',
-    225: 'Юго-западный ветер',
-    270: 'Западный ветер',
-    315: 'Северо-западный ветер',
-    360: 'Северный ветер',
+    0: 'Северный',
+    45: 'Северо-восточный',
+    90: 'Восточный',
+    135: 'Юго-восточный',
+    180: 'Южный',
+    225: 'Юго-западный',
+    270: 'Западный',
+    315: 'Северо-западный',
+    360: 'Северный',
 }
 
 
@@ -38,15 +38,57 @@ def get_direction(deg):
     return true_direction
 
 
-def create_graphic(blood_data):
+def create_graphic(blood_data, days):
+    print(f'Создаем график за {days} дней')
+    count = 0
+    pretty_blood_list = []
     for blood in blood_data:
+        if count >= days:
+            break
+
         regdate = blood.register_date
         formatted_date_time = regdate.strftime("%d.%m.%Y %H:%M")
 
         hi = blood.hi
         low = blood.low
         pulse = blood.pulse
-        print(f'{formatted_date_time} - Давление: {hi} на {low}, пульс: {pulse}')
+
+        # weather data
+        pressure_mm=blood.pressure_mm
+        humidity=blood.humidity
+        temp=blood.temp
+        wind=blood.wind
+        wind_direction=blood.wind_direction
+        wind_real_direction = get_direction(wind_direction)
+        wind_real_direction = wind_directions[wind_real_direction]
+        clouds=blood.clouds
+        visibility=blood.visibility
+        last_kp_index=blood.last_kp_index
+        max_kp_index=blood.max_kp_index
+
+        pretty_blood_string = f"""
+Дата: {formatted_date_time}
+
+Верхнее АД: {hi}
+Нижнее АД: {low}
+Пульс: {pulse}
+
+Атм. давление: {pressure_mm} мм
+Влажность: {humidity} %
+Температура: {temp} ˚C
+Ветер: {wind} м/с
+Направление ветра: {wind_real_direction} {wind_direction} ˚
+Облачность: {clouds} %
+Видимость: {visibility} м
+Последний Kp-индекс: {last_kp_index}
+Макс. Kp-индекс: {max_kp_index}
+        """
+        pretty_blood_list.append(pretty_blood_string)
+        print(pretty_blood_string)
+        count += 1
+
+    message_text = ('\n').join(pretty_blood_list)
+    return message_text
 
 
 def get_weather_data(lat, lon):
