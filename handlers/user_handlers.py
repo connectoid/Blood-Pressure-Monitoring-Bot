@@ -3,7 +3,7 @@ from time import sleep
 from aiogram import Bot, F, Router
 from aiogram.filters.command import Command, CommandStart
 from aiogram.filters.state import StateFilter
-from aiogram.types import CallbackQuery, Message, Location
+from aiogram.types import CallbackQuery, Message, Location, FSInputFile
 
 from aiogram.filters.state import State, StatesGroup
 
@@ -16,7 +16,7 @@ from keyboards.main_menu import get_main_menu, get_location_menu
 from keyboards.graphic_menu import get_graphic_menu
 from config_data.config import Config, load_config
 from database.orm import add_user, add_blood, get_user_id, get_bloods, add_location, get_user_data
-from utils.tools import (create_graphic, get_weather_data, get_pretty_weather, get_timezone, get_kp_data,
+from utils.tools import (create_blood_list, create_graph, get_weather_data, get_pretty_weather, get_timezone, get_kp_data,
                          get_pretty_kp_data, check_pressure_and_pulse)
 
 router = Router()
@@ -126,11 +126,16 @@ async def process_button_1_click(callback: CallbackQuery):
     tg_id = callback.from_user.id
     user_id = get_user_id(tg_id)
     bloods_data = get_bloods(user_id)
-    message_text = create_graphic(bloods_data, days)
-    await callback.message.answer(
-            text=message_text, 
-            reply_markup=get_main_menu()
-        )
+    # message_text = create_blood_list(bloods_data, days)
+    grpaph_filename = create_graph(bloods_data, days)
+    photo_file = FSInputFile(path=grpaph_filename)
+    message_text = f'График за {days} дней'
+    try:
+        await callback.message.answer_photo(
+            photo=photo_file,
+            reply_markup=get_main_menu())
+    except Exception as e:
+        print(f'Error with sending photo: {e}')
 
 
 

@@ -1,6 +1,9 @@
 import json
 import requests
 from pprint import pprint
+import os
+
+import matplotlib.pyplot as plt
 
 from config_data.config import Config, load_config
 
@@ -38,7 +41,38 @@ def get_direction(deg):
     return true_direction
 
 
-def create_graphic(blood_data, days):
+def create_graph(blood_data, days):
+    hi_blood = [blood.hi for blood in blood_data]
+    low_blood = [blood.low for blood in blood_data]
+    pulse = [blood.pulse for blood in blood_data]
+    if len(hi_blood) < days:
+        days = len(hi_blood)
+    days_list = [i for i in range(1, days + 1)]
+
+    plt.figure(figsize=(8, 6))
+
+
+    plt.plot(days_list, hi_blood, label='Верхнее давление')
+    plt.plot(days_list, low_blood, label='Нижнеее давление')
+    # ax.plot(days, pulse, label='Пульс')
+
+    # ax.bar(days, hi)
+    # ax.bar(days, low)
+
+    plt.title(f'График артетриального давления за {days} дней')
+    plt.ylabel('Показатели артериального давления')
+    plt.xlabel('Количество дней')
+    plt.grid(True)
+    plt.legend() 
+    if not os.path.exists('/file'):
+        os.mkdir('/files')
+    graph_filename = './files/plot.png'
+    plt.savefig(graph_filename, dpi=200)
+    return graph_filename
+
+
+
+def create_blood_list(blood_data, days):
     print(f'Создаем график за {days} дней')
     count = 0
     pretty_blood_list = []
