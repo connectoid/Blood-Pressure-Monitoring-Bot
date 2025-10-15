@@ -45,8 +45,12 @@ def create_graph(blood_data, days):
     hi_blood = [blood.hi for blood in blood_data]
     low_blood = [blood.low for blood in blood_data]
     pulse = [blood.pulse for blood in blood_data]
-    if len(hi_blood) < days:
-        days = len(hi_blood)
+
+    # if len(hi_blood) < days:
+    #     days = len(hi_blood)
+
+    days = len(hi_blood)
+    
     days_list = [i for i in range(1, days + 1)]
 
     plt.figure(figsize=(8, 6))
