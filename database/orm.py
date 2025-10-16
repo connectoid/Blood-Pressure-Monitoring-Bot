@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
@@ -42,9 +44,13 @@ def add_blood(hi, low, pulse, weather_data, kp_data, owner):
     session.commit()
 
 
-def get_bloods(owner):
+def get_bloods(owner, days):
+    today = datetime.now()
+    time_edge = today - timedelta(days=days)
+    print(today)
+    print(time_edge)
     session = Session()
-    bloods = session.query(Blood).filter(Blood.owner == owner)
+    bloods = session.query(Blood).filter(Blood.owner == owner).filter(Blood.register_date >= time_edge)
     return bloods
 
 

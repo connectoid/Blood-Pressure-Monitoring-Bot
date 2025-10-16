@@ -6,7 +6,6 @@ import os
 import matplotlib.pyplot as plt
 
 from config_data.config import Config, load_config
-from database.orm import get_bloods
 
 config: Config = load_config()
 ow_token = config.open_weather.weather_token
@@ -47,12 +46,15 @@ def create_graph(blood_data, days):
     low_blood = [blood.low for blood in blood_data]
     pulse = [blood.pulse for blood in blood_data]
 
-    # if len(hi_blood) < days:
-    #     days = len(hi_blood)
 
-    days = len(hi_blood)
+    meassuring_len = len(hi_blood)
     
-    dates = [date.register_date.strftime("%d.%m.%Y %H:%M") for date in blood_data]
+    dates = [date.register_date.strftime("%d.%m %H:%M") for date in blood_data]
+    print(dates)
+    dates = [date.split()[0] + '\n' + date.split()[-1] for date in dates]
+    print(dates)
+
+    meassuring_list = [i for i in range(1, meassuring_len + 1)]
 
     plt.figure(figsize=(8, 6))
 
@@ -64,9 +66,9 @@ def create_graph(blood_data, days):
     # ax.bar(days, hi)
     # ax.bar(days, low)
 
-    plt.title(f'График артетриального давления за {days} дней')
+    plt.title(f'График артетриального давления за {days} д.')
     plt.ylabel('Показатели артериального давления')
-    plt.xlabel('Измерения')
+    plt.xlabel('Количество дней')
     plt.grid(True)
     plt.legend() 
     if not os.path.exists('./files'):

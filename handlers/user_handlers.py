@@ -13,7 +13,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 
 from keyboards.main_menu import get_main_menu, get_location_menu
-from keyboards.graphic_menu import get_graphic_menu
+from keyboards.graphic_menu import get_graphic_menu, PeriodCallback
 from config_data.config import Config, load_config
 from database.orm import add_user, add_blood, get_user_id, get_bloods, add_location, get_user_data
 from utils.tools import (create_blood_list, create_graph, get_weather_data, get_pretty_weather, get_timezone, get_kp_data,
@@ -120,16 +120,15 @@ async def process_graphic_command(callback: CallbackQuery):
         )
 
 
-@router.callback_query(F.data == 'week_button_click')
-async def process_button_1_click(callback: CallbackQuery):
-    days = 7
+@router.callback_query(PeriodCallback.filter(F.name == 'days'))
+async def process_button_period_click(callback: CallbackQuery, callback_data: PeriodCallback):
+    days = callback_data.value
+    print(f'Days: {days}')
     tg_id = callback.from_user.id
     user_id = get_user_id(tg_id)
-    bloods_data = get_bloods(user_id)
-    # message_text = create_blood_list(bloods_data, days)
+    bloods_data = get_bloods(user_id, days)
     grpaph_filename = create_graph(bloods_data, days)
     photo_file = FSInputFile(path=grpaph_filename)
-    message_text = f'График за {days} дней'
     try:
         await callback.message.answer_photo(
             photo=photo_file,
