@@ -6,6 +6,7 @@ import os
 import matplotlib.pyplot as plt
 
 from config_data.config import Config, load_config
+from database.orm import get_bloods
 
 config: Config = load_config()
 ow_token = config.open_weather.weather_token
@@ -51,13 +52,13 @@ def create_graph(blood_data, days):
 
     days = len(hi_blood)
     
-    days_list = [i for i in range(1, days + 1)]
+    dates = [date.register_date.strftime("%d.%m.%Y %H:%M") for date in blood_data]
 
     plt.figure(figsize=(8, 6))
 
 
-    plt.plot(days_list, hi_blood, label='Верхнее давление')
-    plt.plot(days_list, low_blood, label='Нижнеее давление')
+    plt.plot(dates, hi_blood, label='Верхнее давление')
+    plt.plot(dates, low_blood, label='Нижнеее давление')
     # ax.plot(days, pulse, label='Пульс')
 
     # ax.bar(days, hi)
@@ -65,11 +66,11 @@ def create_graph(blood_data, days):
 
     plt.title(f'График артетриального давления за {days} дней')
     plt.ylabel('Показатели артериального давления')
-    plt.xlabel('Количество дней')
+    plt.xlabel('Измерения')
     plt.grid(True)
     plt.legend() 
-    if not os.path.exists('/files'):
-        os.mkdir('/files')
+    if not os.path.exists('./files'):
+        os.mkdir('./files')
     graph_filename = './files/plot.png'
     plt.savefig(graph_filename, dpi=200)
     return graph_filename
