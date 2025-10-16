@@ -41,7 +41,7 @@ def get_direction(deg):
     return true_direction
 
 
-def create_graph(blood_data, days, type):
+def create_graph(blood_data, days):
     hi_blood = [blood.hi for blood in blood_data]
     low_blood = [blood.low for blood in blood_data]
     pulse = [blood.pulse for blood in blood_data]
