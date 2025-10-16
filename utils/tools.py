@@ -46,6 +46,10 @@ def create_graph(blood_data, days):
     low_blood = [blood.low for blood in blood_data]
     pulse = [blood.pulse for blood in blood_data]
 
+    pressures_mm = [blood.pressure_mm for blood in blood_data]
+    last_kp = [blood.last_kp for blood in blood_data]
+
+
 
     meassuring_len = len(hi_blood)
     
@@ -56,23 +60,28 @@ def create_graph(blood_data, days):
 
     meassuring_list = [i for i in range(1, meassuring_len + 1)]
 
-    plt.figure(figsize=(8, 6))
+    blood_graph = plt.figure(figsize=(8, 6))
 
 
-    plt.plot(dates, hi_blood, label='Верхнее давление')
-    plt.plot(dates, low_blood, label='Нижнеее давление')
-    plt.plot(dates, pulse, label='Пульс')
+    blood_graph.plot(dates, hi_blood, label='Верхнее давление')
+    blood_graph.plot(dates, low_blood, label='Нижнеее давление')
+    blood_graph.plot(dates, pulse, label='Пульс')
 
-    plt.title(f'График артетриального давления за {days} д.')
-    plt.ylabel('Показатели артериального давления')
-    plt.xlabel('Измерения артериального давления')
-    plt.grid(True)
-    plt.legend() 
+    blood_graph.title(f'График артетриального давления за {days} д.')
+    blood_graph.ylabel('Показатели артериального давления')
+    blood_graph.xlabel('Измерения артериального давления')
+    blood_graph.grid(True)
+    blood_graph.legend() 
+
     if not os.path.exists('./files'):
         os.mkdir('./files')
-    graph_filename = './files/plot.png'
-    plt.savefig(graph_filename, dpi=200)
-    return graph_filename
+
+    graph_blood_filename = './files/blood_plot.png'
+    graph_pressure_filename = './files/pressure_plot.png'
+    graph_kp_filename = './files/kp_plot.png'
+
+    blood_graph.savefig(graph_blood_filename, dpi=200)
+    return graph_blood_filename
 
 
 
