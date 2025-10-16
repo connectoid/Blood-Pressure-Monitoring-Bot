@@ -41,47 +41,81 @@ def get_direction(deg):
     return true_direction
 
 
+def plot_pressure_graph(pressure: list, dates: list, days: int):
+        plt.figure(figsize=(8, 6))
+        plt.plot(dates, pressure, label='Атмосферное давление, мм')
+
+        plt.title(f'График атмосферного давления за {days} д.')
+        plt.ylabel('Показатели атмосферного давления, мм')
+        plt.xlabel('Измерения атмосферного давления')
+        plt.grid(True)
+        plt.legend() 
+        if not os.path.exists('./files'):
+            os.mkdir('./files')
+        graph_blood_filename = './files/blood_plot.png'
+        graph_pressure_filename = './files/pressure_plot.png'
+        graph_kp_filename = './files/kp_plot.png'
+        
+        plt.savefig(graph_pressure_filename, dpi=200)
+        return graph_pressure_filename
+
+
+def plot_kp_graph(last_kp: list, dates: list, days: int):
+        plt.figure(figsize=(8, 6))
+        plt.plot(dates, last_kp, label='Индекс Kp, мм')
+
+        plt.title(f'График индекса Kp за {days} д.')
+        plt.ylabel('Показатели')
+        plt.xlabel('Измерения')
+        plt.grid(True)
+        plt.legend() 
+        if not os.path.exists('./files'):
+            os.mkdir('./files')
+        graph_blood_filename = './files/blood_plot.png'
+        graph_pressure_filename = './files/pressure_plot.png'
+        graph_kp_filename = './files/kp_plot.png'
+        
+        plt.savefig(graph_kp_filename, dpi=200)
+        return graph_kp_filename
+
+
+
+def plot_blood_graph(hi: list, low: list, pulse: list, dates: list, days: int):
+        plt.figure(figsize=(8, 6))
+        plt.plot(dates, hi, label='Верхнее давление')
+        plt.plot(dates, low, label='Нижнеее давление')
+        plt.plot(dates, pulse, label='Пульс')
+
+        plt.title(f'График артетриального давления за {days} д.')
+        plt.ylabel('Показатели артериального давления')
+        plt.xlabel('Измерения артериального давления')
+        plt.grid(True)
+        plt.legend() 
+        if not os.path.exists('./files'):
+            os.mkdir('./files')
+        graph_blood_filename = './files/blood_plot.png'
+        graph_pressure_filename = './files/pressure_plot.png'
+        graph_kp_filename = './files/kp_plot.png'
+        
+        plt.savefig(graph_blood_filename, dpi=200)
+        return graph_blood_filename
+
+
+
 def create_graph(blood_data, days):
     hi_blood = [blood.hi for blood in blood_data]
     low_blood = [blood.low for blood in blood_data]
     pulse = [blood.pulse for blood in blood_data]
-
     pressures_mm = [blood.pressure_mm for blood in blood_data]
-    last_kp = [blood.last_kp for blood in blood_data]
-
-
-
-    meassuring_len = len(hi_blood)
-    
+    last_kp = [blood.last_kp_index for blood in blood_data]
     dates = [date.register_date.strftime("%d.%m %H:%M") for date in blood_data]
-    print(dates)
     dates = [date.split()[0] + '\n' + date.split()[-1] for date in dates]
-    print(dates)
 
-    meassuring_list = [i for i in range(1, meassuring_len + 1)]
+    blood_graph_filename = plot_blood_graph(hi_blood, low_blood, pulse, dates, days)
+    pressure_graph_filename = plot_pressure_graph(pressures_mm, dates, days)
+    kp_graph_filename = plot_kp_graph(last_kp, dates, days)
 
-    blood_graph = plt.figure(figsize=(8, 6))
-
-
-    blood_graph.plot(dates, hi_blood, label='Верхнее давление')
-    blood_graph.plot(dates, low_blood, label='Нижнеее давление')
-    blood_graph.plot(dates, pulse, label='Пульс')
-
-    blood_graph.title(f'График артетриального давления за {days} д.')
-    blood_graph.ylabel('Показатели артериального давления')
-    blood_graph.xlabel('Измерения артериального давления')
-    blood_graph.grid(True)
-    blood_graph.legend() 
-
-    if not os.path.exists('./files'):
-        os.mkdir('./files')
-
-    graph_blood_filename = './files/blood_plot.png'
-    graph_pressure_filename = './files/pressure_plot.png'
-    graph_kp_filename = './files/kp_plot.png'
-
-    blood_graph.savefig(graph_blood_filename, dpi=200)
-    return graph_blood_filename
+    return blood_graph_filename, pressure_graph_filename, kp_graph_filename
 
 
 

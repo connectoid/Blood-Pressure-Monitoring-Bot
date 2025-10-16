@@ -127,11 +127,19 @@ async def process_button_period_click(callback: CallbackQuery, callback_data: Pe
     tg_id = callback.from_user.id
     user_id = get_user_id(tg_id)
     bloods_data = get_bloods(user_id, days)
-    grpaph_filename = create_graph(bloods_data, days)
-    photo_file = FSInputFile(path=grpaph_filename)
+    blood_grpaph_filename, pressure_graph_filename, kp_graph_filename = create_graph(bloods_data, days)
+    blood_file = FSInputFile(path=blood_grpaph_filename)
+    pressure_file = FSInputFile(path=pressure_graph_filename)
+    kp_file = FSInputFile(path=kp_graph_filename)
     try:
         await callback.message.answer_photo(
-            photo=photo_file,
+            photo=blood_file,
+            reply_markup=get_main_menu())
+        await callback.message.answer_photo(
+            photo=pressure_file,
+            reply_markup=get_main_menu())
+        await callback.message.answer_photo(
+            photo=kp_file,
             reply_markup=get_main_menu())
     except Exception as e:
         print(f'Error with sending photo: {e}')
