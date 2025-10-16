@@ -41,7 +41,7 @@ def get_direction(deg):
     return true_direction
 
 
-def create_graph(blood_data, days):
+def create_graph(blood_data, days, type):
     hi_blood = [blood.hi for blood in blood_data]
     low_blood = [blood.low for blood in blood_data]
     pulse = [blood.pulse for blood in blood_data]
@@ -68,7 +68,7 @@ def create_graph(blood_data, days):
     plt.xlabel('Количество дней')
     plt.grid(True)
     plt.legend() 
-    if not os.path.exists('/file'):
+    if not os.path.exists('/files'):
         os.mkdir('/files')
     graph_filename = './files/plot.png'
     plt.savefig(graph_filename, dpi=200)
