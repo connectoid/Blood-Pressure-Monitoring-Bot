@@ -61,14 +61,11 @@ def create_graph(blood_data, days):
 
     plt.plot(dates, hi_blood, label='Верхнее давление')
     plt.plot(dates, low_blood, label='Нижнеее давление')
-    # ax.plot(days, pulse, label='Пульс')
-
-    # ax.bar(days, hi)
-    # ax.bar(days, low)
+    plt.plot(dates, pulse, label='Пульс')
 
     plt.title(f'График артетриального давления за {days} д.')
     plt.ylabel('Показатели артериального давления')
-    plt.xlabel('Количество дней')
+    plt.xlabel('Измерения артериального давления')
     plt.grid(True)
     plt.legend() 
     if not os.path.exists('./files'):
