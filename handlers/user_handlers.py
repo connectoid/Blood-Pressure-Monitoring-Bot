@@ -192,7 +192,7 @@ async def process_button_period_click(callback: CallbackQuery, callback_data: Pe
 
         if type != 4:
             await callback.message.answer_photo(
-                media=media_list[type-1],
+                photo=media_list[type-1],
                 # photo=blood_file,
                 reply_markup=get_main_menu()
             )
@@ -200,7 +200,7 @@ async def process_button_period_click(callback: CallbackQuery, callback_data: Pe
         else:
             for media in media_list[:-1]:
                 await callback.message.answer_photo(
-                media=media,
+                photo=media,
                 # photo=blood_file,
                 reply_markup=get_main_menu()
             )
