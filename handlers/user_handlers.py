@@ -14,6 +14,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 from keyboards.main_menu import get_main_menu, get_location_menu
 from keyboards.graphic_menu import get_graphic_menu, PeriodCallback
+from keyboards.callback_menu import get_yes_no_menu, YesNoCallback
 from config_data.config import Config, load_config
 from database.orm import add_user, add_blood, get_user_id, get_bloods, add_location, get_user_data
 from utils.tools import (create_blood_list, create_graph, get_weather_data, get_pretty_weather, get_timezone, get_kp_data,
@@ -26,6 +27,7 @@ storage = MemoryStorage()
 
 class FSMBloodState(StatesGroup):
     blood_string = State()
+    blood_string_confirmed = State()
 
 class FSMGraphState(StatesGroup):
     period = State()
@@ -83,11 +85,34 @@ async def process_blood_command(message: Message, state: FSMContext):
 
 
 @router.message(F.text,  StateFilter(FSMBloodState.blood_string))
-async def process_text_command(message: Message, state: FSMContext):
-    await state.update_data(blood_string=message.text)
-    tg_id = message.from_user.id
-    blood_text = message.text # 120/70/72
+async def process_blood_confirm_command(message: Message, state: FSMContext):
+    blood_text = message.text
     if check_pressure_and_pulse(blood_text):
+        values = blood_text.split('/')
+        systolic_bp, diastolic_bp, pulse_rate = map(int, values)
+        await message.answer(text=f'Вы ввели:\nДавление {systolic_bp} на {diastolic_bp}, пульс {pulse_rate}\nДобавить?',
+                          reply_markup=get_yes_no_menu()
+        )
+        await state.update_data(blood_string=message.text)
+        await state.set_state(FSMBloodState.blood_string_confirmed)
+    else:
+        await message.answer(
+                text='Неверный формат строки  или неверные показатели АД и пульса. Введите в формате 120/70/75', 
+                reply_markup=get_main_menu()
+            )
+
+
+@router.callback_query(YesNoCallback.filter(F.name == 'answer'), StateFilter(FSMBloodState.blood_string_confirmed))
+async def process_add_confirmed_blood(callback: CallbackQuery, callback_data: PeriodCallback, state: FSMContext):
+    tg_id = callback.from_user.id
+    blood_data = await state.get_data()
+    blood_text = blood_data['blood_string']
+
+    print(callback_data)
+    print(callback_data.value)
+    print(blood_text)
+    
+    if callback_data.value == True:
         try:
             user_id, lat, lon, timezone  = get_user_data(tg_id)
             weather_data = get_weather_data(lat, lon)
@@ -96,21 +121,23 @@ async def process_text_command(message: Message, state: FSMContext):
             low = blood_text.split('/')[1]
             pulse = blood_text.split('/')[-1]
             add_blood(hi, low, pulse, weather_data, kp_data, user_id)
-            await message.answer(
+            await callback.message.answer(
                 text='Показания добавлены', 
                 reply_markup=get_main_menu()
             )
             await state.clear()
         except:
-            await message.answer(
+            await callback.message.answer(
                 text='Ошибка при добавлении данных, обратитесь к разработчику', 
                 reply_markup=get_main_menu()
             )
     else:
-        await message.answer(
-                text='Неверный формат строки  или неверные показатели АД и пульса. Введите в формате 120/70/75', 
-                reply_markup=get_main_menu()
-            )
+        await callback.message.answer(
+            text=f'Введите показатели АД и пульса в формате 120/70/75', 
+            reply_markup=get_main_menu()
+        )
+        await state.set_state(FSMBloodState.blood_string)
+    
 
 
 @router.message(F.text == '📈 График', StateFilter(default_state))
@@ -127,20 +154,27 @@ async def process_button_period_click(callback: CallbackQuery, callback_data: Pe
     tg_id = callback.from_user.id
     user_id = get_user_id(tg_id)
     bloods_data = get_bloods(user_id, days)
-    blood_grpaph_filename, pressure_graph_filename, kp_graph_filename = create_graph(bloods_data, days)
+    blood_grpaph_filename, pressure_graph_filename, kp_graph_filename, table_filename = create_graph(bloods_data, days)
     blood_file = FSInputFile(path=blood_grpaph_filename)
     pressure_file = FSInputFile(path=pressure_graph_filename)
     kp_file = FSInputFile(path=kp_graph_filename)
     try:
         await callback.message.answer_photo(
             photo=blood_file,
-            reply_markup=get_main_menu())
-        await callback.message.answer_photo(
-            photo=pressure_file,
-            reply_markup=get_main_menu())
-        await callback.message.answer_photo(
-            photo=kp_file,
-            reply_markup=get_main_menu())
+            reply_markup=get_main_menu()
+        )
+        if table_filename:
+            table_file = FSInputFile(path=table_filename)
+            await callback.message.answer_photo(
+                photo=table_file,
+                reply_markup=get_main_menu()
+            )
+        # await callback.message.answer_photo(
+        #     photo=pressure_file,
+        #     reply_markup=get_main_menu())
+        # await callback.message.answer_photo(
+        #     photo=kp_file,
+        #     reply_markup=get_main_menu())
     except Exception as e:
         print(f'Error with sending photo: {e}')
 

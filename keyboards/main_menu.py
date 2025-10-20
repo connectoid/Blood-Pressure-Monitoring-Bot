@@ -4,8 +4,8 @@ from aiogram.types import (KeyboardButton, Message, ReplyKeyboardMarkup,
 
 
 def get_main_menu():
-    button_1: KeyboardButton = KeyboardButton(text='❤️ Добавить')
-    button_2: KeyboardButton = KeyboardButton(text='📈 График')
+    button_1: KeyboardButton = KeyboardButton(text='📈 График')
+    button_2: KeyboardButton = KeyboardButton(text='❤️ Добавить')
     button_3: KeyboardButton = KeyboardButton(text='🌤 Погода')
     button_4: KeyboardButton = KeyboardButton(text='🧲 Магнитные бури')
 

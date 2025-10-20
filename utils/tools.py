@@ -4,6 +4,7 @@ from pprint import pprint
 import os
 
 import matplotlib.pyplot as plt
+from matplotlib.table import Table
 
 from config_data.config import Config, load_config
 
@@ -12,6 +13,7 @@ ow_token = config.open_weather.weather_token
 utc_token = config.open_weather.utc_token
 
 PRESSURE_FACTOR = 0.007501
+MAX_DATES_COUNT = 14
 code_timezone_file = 'code_timezone.json'
 
 
@@ -101,21 +103,67 @@ def plot_blood_graph(hi: list, low: list, pulse: list, dates: list, days: int):
         return graph_blood_filename
 
 
+def save_dictionary_as_png(data_dict):
+    filename='./files/table.png'
+    fig, ax = plt.subplots()
+    ax.axis('off')
+
+    headers = ["Номер", "Дата"]
+    table_data = []
+
+    for number, date in sorted(data_dict.items()):
+        table_data.append([number, date])
+
+    table_data.insert(0, headers)
+
+    tb = Table(ax, bbox=[0, 0, 1, 1])
+    nrows, ncols = len(table_data), len(table_data[0])
+    width, height = 1 / ncols, 1 / nrows
+
+    colors = [['#F0FFFF'] * ncols] + [['#DCDCDC']*ncols]*nrows
+    colors.pop(-1) 
+
+    for i in range(nrows):
+        for j in range(ncols):
+            tb.add_cell(i, j, width, height, text=table_data[i][j], loc='center', facecolor=colors[i][j])
+
+    tb.auto_set_font_size(False)
+    tb.set_fontsize(12)
+    tb.scale(1, 1.5)
+
+    ax.add_table(tb)
+
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    return filename
+
+
 
 def create_graph(blood_data, days):
+    table_filename = ''
     hi_blood = [blood.hi for blood in blood_data]
     low_blood = [blood.low for blood in blood_data]
     pulse = [blood.pulse for blood in blood_data]
     pressures_mm = [blood.pressure_mm for blood in blood_data]
     last_kp = [blood.last_kp_index for blood in blood_data]
-    dates = [date.register_date.strftime("%d.%m %H:%M") for date in blood_data]
-    dates = [date.split()[0] + '\n' + date.split()[-1] for date in dates]
+
+    date_numbers = [i for i in range(1, len(hi_blood)+1)]
+    dates_values = [date.register_date.strftime("%d.%m %H:%M") for date in blood_data]
+    dates_values_short = [date.split()[0] + '\n' + date.split()[-1] for date in dates_values]
+    dates_dict = dict(zip(date_numbers, dates_values))
+    
+
+    if len(hi_blood) > MAX_DATES_COUNT:
+        dates = date_numbers
+        table_filename = save_dictionary_as_png(dates_dict)
+    else:
+        dates = dates_values_short
 
     blood_graph_filename = plot_blood_graph(hi_blood, low_blood, pulse, dates, days)
     pressure_graph_filename = plot_pressure_graph(pressures_mm, dates, days)
     kp_graph_filename = plot_kp_graph(last_kp, dates, days)
-
-    return blood_graph_filename, pressure_graph_filename, kp_graph_filename
+    print(f'table_filename: {table_filename}')
+    return blood_graph_filename, pressure_graph_filename, kp_graph_filename, table_filename
 
 
 
