@@ -13,7 +13,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 
 from keyboards.main_menu import get_main_menu, get_location_menu
-from keyboards.graphic_menu import get_graphic_menu, PeriodCallback
+from keyboards.graphic_menu import get_graphic_period_menu, PeriodCallback, get_graphic_type_menu, TypeCallback
 from keyboards.callback_menu import get_yes_no_menu, YesNoCallback
 from config_data.config import Config, load_config
 from database.orm import add_user, add_blood, get_user_id, get_bloods, add_location, get_user_data
@@ -30,6 +30,7 @@ class FSMBloodState(StatesGroup):
     blood_string_confirmed = State()
 
 class FSMGraphState(StatesGroup):
+    type = State()
     period = State()
 
 
@@ -141,42 +142,71 @@ async def process_add_confirmed_blood(callback: CallbackQuery, callback_data: Pe
 
 
 @router.message(F.text == '📈 График', StateFilter(default_state))
-async def process_graphic_command(callback: CallbackQuery):
-    await callback.answer(text='Выберите период:',
-                          reply_markup=get_graphic_menu()
+async def process_graphic_command(callback: CallbackQuery, state: FSMContext):
+    await state.set_state(FSMGraphState.type)
+    await callback.answer(text='Выберите тип графика:',
+                          reply_markup=get_graphic_type_menu()
         )
 
 
-@router.callback_query(PeriodCallback.filter(F.name == 'days'))
-async def process_button_period_click(callback: CallbackQuery, callback_data: PeriodCallback):
+@router.callback_query(PeriodCallback.filter(F.name == 'mesure'), StateFilter(FSMGraphState.type))
+async def process_button_type_click(callback: CallbackQuery, callback_data: TypeCallback, state: FSMContext):
+    type = callback_data.value
+    print(f'Type: {type}')
+    await state.update_data(type=type)
+    data = state.get_state()
+    print(f'Data: {data}')
+    await state.set_state(FSMGraphState.period)
+    await callback.message.answer(text='Выберите период:',
+                          reply_markup=get_graphic_period_menu()
+        )
+
+
+@router.callback_query(PeriodCallback.filter(F.name == 'days'), StateFilter(FSMGraphState.period))
+async def process_button_period_click(callback: CallbackQuery, callback_data: PeriodCallback, state: FSMContext):
     days = callback_data.value
-    print(f'Days: {days}')
+    await state.update_data(days=days)
+    graph_data = await state.get_data()
+    type = graph_data['type']
+    days = graph_data['days']
+
     tg_id = callback.from_user.id
     user_id = get_user_id(tg_id)
     bloods_data = get_bloods(user_id, days)
     blood_grpaph_filename, pressure_graph_filename, kp_graph_filename, table_filename = create_graph(bloods_data, days)
+    
+    
     blood_file = FSInputFile(path=blood_grpaph_filename)
     pressure_file = FSInputFile(path=pressure_graph_filename)
     kp_file = FSInputFile(path=kp_graph_filename)
+    media_list = [blood_file, pressure_file, kp_file, [blood_file, pressure_file, kp_file]]
+    if table_filename:
+        table_file = FSInputFile(path=table_filename)
+
     try:
-        await callback.message.answer_photo(
-            photo=blood_file,
-            reply_markup=get_main_menu()
-        )
         if table_filename:
-            table_file = FSInputFile(path=table_filename)
             await callback.message.answer_photo(
                 photo=table_file,
                 reply_markup=get_main_menu()
             )
-        # await callback.message.answer_photo(
-        #     photo=pressure_file,
-        #     reply_markup=get_main_menu())
-        # await callback.message.answer_photo(
-        #     photo=kp_file,
-        #     reply_markup=get_main_menu())
+
+        if type != 4:
+            await callback.message.answer_photo(
+                media=media_list[type-1],
+                # photo=blood_file,
+                reply_markup=get_main_menu()
+            )
+            await state.clear()
+        else:
+            for media in media_list[:-1]:
+                await callback.message.answer_photo(
+                media=media,
+                # photo=blood_file,
+                reply_markup=get_main_menu()
+            )
     except Exception as e:
         print(f'Error with sending photo: {e}')
+        await state.clear()
 
 
 

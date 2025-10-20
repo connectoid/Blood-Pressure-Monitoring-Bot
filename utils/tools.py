@@ -5,6 +5,8 @@ import os
 
 import matplotlib.pyplot as plt
 from matplotlib.table import Table
+from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
+AutoMinorLocator)
 
 from config_data.config import Config, load_config
 
@@ -44,37 +46,43 @@ def get_direction(deg):
 
 
 def plot_pressure_graph(pressure: list, dates: list, days: int):
-        plt.figure(figsize=(8, 6))
-        plt.plot(dates, pressure, label='Атмосферное давление, мм')
-
-        plt.title(f'График атмосферного давления за {days} д.')
-        plt.ylabel('Показатели атмосферного давления, мм')
-        plt.xlabel('Измерения атмосферного давления')
-        plt.grid(True)
-        plt.legend() 
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.set_title(f'График атмосферного давления за {days} д.', fontsize=16)
+        ax.set_xlabel('Измерения атмосферного давления', fontsize=14)
+        ax.set_ylabel('Показатели атмосферного давления, мм', fontsize=14)
+        ax.grid(which='major', linewidth=1.2)
+        ax.grid(which='minor', linestyle='--', color='gray', linewidth=0.5)
+        # ax.scatter(x, y1, c='red', label='y1 = 4*x')
+        ax.plot(dates, pressure, label='Атмосферное давление, мм')
+        ax.legend()
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.tick_params(which='major', length=10, width=2)
+        ax.tick_params(which='minor', length=5, width=1)
         if not os.path.exists('./files'):
             os.mkdir('./files')
-        graph_blood_filename = './files/blood_plot.png'
         graph_pressure_filename = './files/pressure_plot.png'
-        graph_kp_filename = './files/kp_plot.png'
         
         plt.savefig(graph_pressure_filename, dpi=200)
         return graph_pressure_filename
 
 
 def plot_kp_graph(last_kp: list, dates: list, days: int):
-        plt.figure(figsize=(8, 6))
-        plt.plot(dates, last_kp, label='Индекс Kp, мм')
-
-        plt.title(f'График индекса Kp за {days} д.')
-        plt.ylabel('Показатели')
-        plt.xlabel('Измерения')
-        plt.grid(True)
-        plt.legend() 
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.set_title(f'График индекса Kp за {days} д.', fontsize=16)
+        ax.set_xlabel('Измерения', fontsize=14)
+        ax.set_ylabel('Показатели', fontsize=14)
+        ax.grid(which='major', linewidth=1.2)
+        ax.grid(which='minor', linestyle='--', color='gray', linewidth=0.5)
+        # ax.scatter(x, y1, c='red', label='y1 = 4*x')
+        ax.plot(dates, last_kp, label='Индекс Kp, мм')
+        ax.legend()
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.tick_params(which='major', length=10, width=2)
+        ax.tick_params(which='minor', length=5, width=1)
         if not os.path.exists('./files'):
             os.mkdir('./files')
-        graph_blood_filename = './files/blood_plot.png'
-        graph_pressure_filename = './files/pressure_plot.png'
         graph_kp_filename = './files/kp_plot.png'
         
         plt.savefig(graph_kp_filename, dpi=200)
@@ -83,21 +91,25 @@ def plot_kp_graph(last_kp: list, dates: list, days: int):
 
 
 def plot_blood_graph(hi: list, low: list, pulse: list, dates: list, days: int):
-        plt.figure(figsize=(8, 6))
-        plt.plot(dates, hi, label='Верхнее давление')
-        plt.plot(dates, low, label='Нижнеее давление')
-        plt.plot(dates, pulse, label='Пульс')
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.set_title(f'График артетриального давления за {days} д.', fontsize=16)
+        ax.set_xlabel('Измерения артериального давления', fontsize=14)
+        ax.set_ylabel('Показатели артериального давления', fontsize=14)
+        ax.grid(which='major', linewidth=1.2)
+        ax.grid(which='minor', linestyle='--', color='gray', linewidth=0.5)
+        # ax.scatter(x, y1, c='red', label='y1 = 4*x')
+        ax.plot(dates, hi, label='Верхнее давление')
+        ax.plot(dates, low, label='Нижнеее давление')
+        ax.plot(dates, pulse, label='Пульс')
+        ax.legend()
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.tick_params(which='major', length=10, width=2)
+        ax.tick_params(which='minor', length=5, width=1)
 
-        plt.title(f'График артетриального давления за {days} д.')
-        plt.ylabel('Показатели артериального давления')
-        plt.xlabel('Измерения артериального давления')
-        plt.grid(True)
-        plt.legend() 
         if not os.path.exists('./files'):
             os.mkdir('./files')
         graph_blood_filename = './files/blood_plot.png'
-        graph_pressure_filename = './files/pressure_plot.png'
-        graph_kp_filename = './files/kp_plot.png'
         
         plt.savefig(graph_blood_filename, dpi=200)
         return graph_blood_filename
@@ -108,7 +120,7 @@ def save_dictionary_as_png(data_dict):
     fig, ax = plt.subplots()
     ax.axis('off')
 
-    headers = ["Номер", "Дата"]
+    headers = ["Номер измерения", "Дата и время"]
     table_data = []
 
     for number, date in sorted(data_dict.items()):

@@ -7,8 +7,39 @@ class PeriodCallback(CallbackData, prefix="period"):
         value: int
 
 
+class TypeCallback(CallbackData, prefix="type"):
+        name: str
+        value: int
 
-def get_graphic_menu():
+
+def get_graphic_type_menu():
+        bp = InlineKeyboardButton(
+                text="Артериальное давление", callback_data=PeriodCallback(name="mesure", value=1).pack()
+        )
+        ap = InlineKeyboardButton(
+                text="Атмосферное давление", callback_data=PeriodCallback(name="mesure", value=2).pack()
+        )
+        kp = InlineKeyboardButton(
+                text="Индекс Kp", callback_data=PeriodCallback(name="mesure", value=3).pack()
+        )
+        all = InlineKeyboardButton(
+                text="Все графики", callback_data=PeriodCallback(name="mesure", value=4).pack()
+        )
+
+        graphic_type_menu_keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                        [bp],
+                        [ap],
+                        [kp], 
+                        [all], 
+                ]
+        )
+
+        return graphic_type_menu_keyboard
+
+
+
+def get_graphic_period_menu():
         day_1 = InlineKeyboardButton(
                 text="1", callback_data=PeriodCallback(name="days", value=1).pack()
         )
@@ -37,7 +68,7 @@ def get_graphic_menu():
                 text="Месяц", callback_data=PeriodCallback(name="days", value=30).pack()
         )
 
-        graphic_menu_keyboard = InlineKeyboardMarkup(
+        graphic_period_menu_keyboard = InlineKeyboardMarkup(
                 inline_keyboard=[
                         [day_1, day_2, day_3],
                         [day_4, day_5, day_6],
@@ -47,4 +78,4 @@ def get_graphic_menu():
                 ]
         )
 
-        return graphic_menu_keyboard
+        return graphic_period_menu_keyboard
