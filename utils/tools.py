@@ -17,6 +17,7 @@ utc_token = config.open_weather.utc_token
 
 PRESSURE_FACTOR = 0.007501
 MAX_DATES_COUNT = 14
+graph_path = './files/'
 code_timezone_file = 'code_timezone.json'
 
 
@@ -46,7 +47,7 @@ def get_direction(deg):
     return true_direction
 
 
-def plot_pressure_graph(pressure: list, dates: list, days: int):
+def plot_pressure_graph(pressure: list, dates: list, days: int, tg_id):
         fig, ax = plt.subplots(figsize=(8, 6))
         ax.set_title(f'График атмосферного давления за {days} д.', fontsize=16)
         ax.set_xlabel('Измерения атмосферного давления', fontsize=14)
@@ -62,13 +63,13 @@ def plot_pressure_graph(pressure: list, dates: list, days: int):
         ax.tick_params(which='minor', length=5, width=1)
         if not os.path.exists('./files'):
             os.mkdir('./files')
-        graph_pressure_filename = './files/pressure_plot.png'
+        graph_pressure_filename = graph_path + str(tg_id) + '_pressure_plot.png'
         
         plt.savefig(graph_pressure_filename, dpi=200)
         return graph_pressure_filename
 
 
-def plot_kp_graph(last_kp: list, dates: list, days: int):
+def plot_kp_graph(last_kp: list, dates: list, days: int, tg_id):
         fig, ax = plt.subplots(figsize=(8, 6))
         ax.set_title(f'График индекса Kp за {days} д.', fontsize=16)
         ax.set_xlabel('Измерения', fontsize=14)
@@ -84,14 +85,14 @@ def plot_kp_graph(last_kp: list, dates: list, days: int):
         ax.tick_params(which='minor', length=5, width=1)
         if not os.path.exists('./files'):
             os.mkdir('./files')
-        graph_kp_filename = './files/kp_plot.png'
+        graph_kp_filename = graph_path + str(tg_id) + '_kp_plot.png'
         
         plt.savefig(graph_kp_filename, dpi=200)
         return graph_kp_filename
 
 
 
-def plot_blood_graph(hi: list, low: list, pulse: list, dates: list, days: int):
+def plot_blood_graph(hi: list, low: list, pulse: list, dates: list, days: int, tg_id):
         fig, ax = plt.subplots(figsize=(8, 6))
         ax.set_title(f'График артетриального давления за {days} д.', fontsize=16)
         ax.set_xlabel('Измерения артериального давления', fontsize=14)
@@ -110,14 +111,14 @@ def plot_blood_graph(hi: list, low: list, pulse: list, dates: list, days: int):
 
         if not os.path.exists('./files'):
             os.mkdir('./files')
-        graph_blood_filename = './files/blood_plot.png'
+        graph_blood_filename = graph_path + str(tg_id) + '_blood_plot.png'
         
         plt.savefig(graph_blood_filename, dpi=200)
         return graph_blood_filename
 
 
-def save_dictionary_as_png(data_dict):
-    filename='./files/table.png'
+def save_dictionary_as_png(data_dict, tg_id):
+    filename = graph_path + str(tg_id) + '_table.png'
     fig, ax = plt.subplots()
     ax.axis('off')
 
@@ -152,7 +153,7 @@ def save_dictionary_as_png(data_dict):
 
 
 
-def create_graph(blood_data, days, utc):
+def create_graph(blood_data, days, utc, tg_id):
     timezone = pytz.timezone(f'Etc/GMT{utc}')
     table_filename = ''
     hi_blood = [blood.hi for blood in blood_data]
@@ -169,13 +170,13 @@ def create_graph(blood_data, days, utc):
 
     if len(hi_blood) > MAX_DATES_COUNT:
         dates = date_numbers
-        table_filename = save_dictionary_as_png(dates_dict)
+        table_filename = save_dictionary_as_png(dates_dict, tg_id)
     else:
         dates = dates_values_short
 
-    blood_graph_filename = plot_blood_graph(hi_blood, low_blood, pulse, dates, days)
-    pressure_graph_filename = plot_pressure_graph(pressures_mm, dates, days)
-    kp_graph_filename = plot_kp_graph(last_kp, dates, days)
+    blood_graph_filename = plot_blood_graph(hi_blood, low_blood, pulse, dates, days, tg_id)
+    pressure_graph_filename = plot_pressure_graph(pressures_mm, dates, days, tg_id)
+    kp_graph_filename = plot_kp_graph(last_kp, dates, days, tg_id)
     print(f'table_filename: {table_filename}')
     return blood_graph_filename, pressure_graph_filename, kp_graph_filename, table_filename
 

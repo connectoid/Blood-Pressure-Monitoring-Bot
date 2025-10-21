@@ -174,7 +174,7 @@ async def process_button_period_click(callback: CallbackQuery, callback_data: Pe
     utc = get_user_utc(tg_id)
     utc = utc.split('UTC')[-1]
     bloods_data = get_bloods(user_id, days)
-    blood_grpaph_filename, pressure_graph_filename, kp_graph_filename, table_filename = create_graph(bloods_data, days, utc)
+    blood_grpaph_filename, pressure_graph_filename, kp_graph_filename, table_filename = create_graph(bloods_data, days, utc, tg_id)
     
     
     blood_file = FSInputFile(path=blood_grpaph_filename)
@@ -206,6 +206,7 @@ async def process_button_period_click(callback: CallbackQuery, callback_data: Pe
                 # photo=blood_file,
                 reply_markup=get_main_menu()
             )
+            await state.clear()
     except Exception as e:
         print(f'Error with sending photo: {e}')
         await state.clear()
