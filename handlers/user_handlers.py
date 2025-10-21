@@ -122,6 +122,7 @@ async def process_add_confirmed_blood(callback: CallbackQuery, callback_data: Pe
             low = blood_text.split('/')[1]
             pulse = blood_text.split('/')[-1]
             add_blood(hi, low, pulse, weather_data, kp_data, user_id)
+            await callback.message.delete()
             await callback.message.answer(
                 text='Показания добавлены', 
                 reply_markup=get_main_menu()
