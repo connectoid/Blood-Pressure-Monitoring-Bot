@@ -153,7 +153,7 @@ def save_dictionary_as_png(data_dict):
 
 
 def create_graph(blood_data, days):
-    utc = '+10'
+    utc = '-10'
     timezone = pytz.timezone(f'Etc/GMT{utc}')
     table_filename = ''
     hi_blood = [blood.hi for blood in blood_data]
@@ -363,8 +363,8 @@ def get_pretty_kp_data(kp_data):
 
 def get_timezone(lat, lon):
     print(f'Получаем временную зону по координатам {lat} {lon}')
-    lat = '-34.9313'
-    lon = '138.59669'
+    # lat = '-34.9313'
+    # lon = '138.59669'
 
     url = f'https://api-bdc.net/data/timezone-by-location?latitude={lat}&longitude={lon}&key={utc_token}'
     response = requests.get(url)
