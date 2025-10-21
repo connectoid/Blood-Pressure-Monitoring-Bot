@@ -154,7 +154,7 @@ async def process_button_type_click(callback: CallbackQuery, callback_data: Type
     type = callback_data.value
     print(f'Type: {type}')
     await state.update_data(type=type)
-    data = state.get_state()
+    data = state.get_data()
     print(f'Data: {data}')
     await state.set_state(FSMGraphState.period)
     await callback.message.answer(text='Выберите период:',
