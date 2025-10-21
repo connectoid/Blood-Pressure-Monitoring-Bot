@@ -2,6 +2,7 @@ import json
 import requests
 from pprint import pprint
 import os
+import pytz
 
 import matplotlib.pyplot as plt
 from matplotlib.table import Table
@@ -152,6 +153,8 @@ def save_dictionary_as_png(data_dict):
 
 
 def create_graph(blood_data, days):
+    utc = '+10'
+    timezone = pytz.timezone(f'Etc/GMT{utc}')
     table_filename = ''
     hi_blood = [blood.hi for blood in blood_data]
     low_blood = [blood.low for blood in blood_data]
@@ -160,7 +163,7 @@ def create_graph(blood_data, days):
     last_kp = [blood.last_kp_index for blood in blood_data]
 
     date_numbers = [i for i in range(1, len(hi_blood)+1)]
-    dates_values = [date.register_date.strftime("%d.%m %H:%M") for date in blood_data]
+    dates_values = [date.register_date.astimezone(timezone).strftime("%d.%m %H:%M") for date in blood_data]
     dates_values_short = [date.split()[0] + '\n' + date.split()[-1] for date in dates_values]
     dates_dict = dict(zip(date_numbers, dates_values))
     
