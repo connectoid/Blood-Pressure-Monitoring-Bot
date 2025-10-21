@@ -152,8 +152,7 @@ def save_dictionary_as_png(data_dict):
 
 
 
-def create_graph(blood_data, days):
-    utc = '+12'
+def create_graph(blood_data, days, utc):
     timezone = pytz.timezone(f'Etc/GMT{utc}')
     table_filename = ''
     hi_blood = [blood.hi for blood in blood_data]

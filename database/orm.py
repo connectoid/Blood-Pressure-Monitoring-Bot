@@ -84,6 +84,12 @@ def get_user_id(tg_id):
     return user.id
 
 
+def get_user_utc(tg_id):
+    session = Session()
+    user = session.query(User).filter(User.tg_id == tg_id).first()
+    return user.timezone
+
+
 def get_user_data(tg_id):
     session = Session()
     user = session.query(User).filter(User.tg_id == tg_id).first()

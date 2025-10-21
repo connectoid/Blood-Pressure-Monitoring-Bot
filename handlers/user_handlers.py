@@ -16,7 +16,7 @@ from keyboards.main_menu import get_main_menu, get_location_menu
 from keyboards.graphic_menu import get_graphic_period_menu, PeriodCallback, get_graphic_type_menu, TypeCallback
 from keyboards.callback_menu import get_yes_no_menu, YesNoCallback
 from config_data.config import Config, load_config
-from database.orm import add_user, add_blood, get_user_id, get_bloods, add_location, get_user_data
+from database.orm import add_user, add_blood, get_user_id, get_bloods, add_location, get_user_data, get_user_utc
 from utils.tools import (create_blood_list, create_graph, get_weather_data, get_pretty_weather, get_timezone, get_kp_data,
                          get_pretty_kp_data, check_pressure_and_pulse)
 
@@ -171,8 +171,10 @@ async def process_button_period_click(callback: CallbackQuery, callback_data: Pe
 
     tg_id = callback.from_user.id
     user_id = get_user_id(tg_id)
+    utc = get_user_utc(tg_id)
+    utc = utc.split('UTC')[-1]
     bloods_data = get_bloods(user_id, days)
-    blood_grpaph_filename, pressure_graph_filename, kp_graph_filename, table_filename = create_graph(bloods_data, days)
+    blood_grpaph_filename, pressure_graph_filename, kp_graph_filename, table_filename = create_graph(bloods_data, days, utc)
     
     
     blood_file = FSInputFile(path=blood_grpaph_filename)
